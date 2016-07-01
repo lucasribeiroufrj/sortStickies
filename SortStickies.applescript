@@ -25,6 +25,8 @@
 #	- Only tested on El Capitan 10.11.4
 #
 # Change log:
+# 	0.0.2:
+#		- Now the script does not stop when something goes wrong with one sticky 
 # 	0.0.1:
 #		- First version ( probably many bugs :D )
 #
@@ -60,30 +62,41 @@ repeat with ith_window in list_of_windows
 	tell application "System Events"
 		tell application "Stickies" to activate
 		
-		tell application process "Stickies"
+		try
+		
+			tell application process "Stickies"
 			
-			# TODO - We should get the text from textfield instead!  Why? Because it should be possible to put the desktop "mark" anywhere on the text, not only in the beginning
-			#set text_field to value of text area 1 of scroll area 1 of ith_window
+				# TODO - We should get the text from textfield instead!  Why? Because it should be possible to put the desktop "mark" anywhere on the text, not only in the beginning
+				#set text_field to value of text area 1 of scroll area 1 of ith_window
 			
-			set text_field to name of ith_window
-			set desktop_number to my extract_desktop_index(text_field)
+				set text_field to name of ith_window
+				set desktop_number to my extract_desktop_index(text_field)
 			
-			my DEBUG("Note belongs to desktop number " & desktop_number)
+				my DEBUG("Note belongs to desktop number " & desktop_number)
 			
-			if (desktop_number ­ -1) then
+				if (desktop_number ­ -1) then
 				
-				set _pos to position of ith_window
-				set _size to size of ith_window
+					set _pos to position of ith_window
+					set _size to size of ith_window
 				
-				perform action "AXRaise" of ith_window
+					perform action "AXRaise" of ith_window
 				
-				my drag_to_desktop(_pos, _size, desktop_number)
+					my drag_to_desktop(_pos, _size, desktop_number)
 				
-				my go_to_desktop(1)
-				delay 1
-			end if
+					my go_to_desktop(1)
+					delay 1
+				end if
 			
-		end tell
+			end tell
+			
+		on error errMsg
+			display dialog "Error: 
+The text " & a_text & " ... 
+
+Generated the following error:
+" & errMsg
+		end try
+
 	end tell
 end repeat
 
