@@ -1,7 +1,7 @@
 # Title: Sort Stickies
 # Date: 17/05/2016
 # Author: Lucas Ribeiro
-# Version: 0.0.1
+# Version: 0.0.3 (29/10/2017)
 #
 # Description: 
 #	This script was written because I was sick and tired of having to move all Stickies notes 
@@ -25,6 +25,8 @@
 #	- Only tested on El Capitan 10.11.4
 #
 # Change log:
+# 	0.0.3:
+#		- Fix a bug that was preventing the notes to stay at the desktop after being left there. 
 # 	0.0.2:
 #		- Now the script does not stop when something goes wrong with one sticky 
 # 	0.0.1:
@@ -41,7 +43,7 @@ global number_of_desktops
 display dialog "Please wait untill proccess ends." with title "Alert!"
 
 set is_to_log to false # Debugging mode
-set cliclick to "~/cliclick"
+set cliclick to "/usr/local/bin/cliclick"
 set number_of_desktops to my get_number_of_desktops()
 
 my close_stickies()
@@ -63,30 +65,30 @@ repeat with ith_window in list_of_windows
 		tell application "Stickies" to activate
 		
 		try
-		
-			tell application process "Stickies"
 			
+			tell application process "Stickies"
+				
 				# TODO - We should get the text from textfield instead!  Why? Because it should be possible to put the desktop "mark" anywhere on the text, not only in the beginning
 				#set text_field to value of text area 1 of scroll area 1 of ith_window
-			
+				
 				set text_field to name of ith_window
 				set desktop_number to my extract_desktop_index(text_field)
-			
-				my DEBUG("Note belongs to desktop number " & desktop_number)
-			
-				if (desktop_number ­ -1) then
 				
+				my DEBUG("Note belongs to desktop number " & desktop_number)
+				
+				if (desktop_number ­ -1) then
+					
 					set _pos to position of ith_window
 					set _size to size of ith_window
-				
+					
 					perform action "AXRaise" of ith_window
-				
+					
 					my drag_to_desktop(_pos, _size, desktop_number)
-				
+					
 					my go_to_desktop(1)
-					delay 1
+					delay 2
 				end if
-			
+				
 			end tell
 			
 		on error errMsg
@@ -96,7 +98,7 @@ The text " & a_text & " ...
 Generated the following error:
 " & errMsg
 		end try
-
+		
 	end tell
 end repeat
 
@@ -121,9 +123,15 @@ end launch_stickies
 # Use shortcut "crtl + k", k E [1,...,9], to change to desktop k
 # ATTENTION: relies on the fact that the shortcuts were set.
 on go_to_desktop(i)
-	my DEBUG("Going to desktop " & i)
-	set i to i as string
-	do shell script cliclick & " kd:ctrl t:" & i & " c:-10,-10"
+	try
+		my DEBUG("Going to desktop " & i)
+		set i to i as string
+		do shell script cliclick & " kd:ctrl t:" & i & " c:-10,-10"
+		my DEBUG("Finished")
+	on error errMsg
+		display dialog "Error: " & errMsg
+		return -1
+	end try
 end go_to_desktop
 
 on get_number_of_desktops()
@@ -179,6 +187,8 @@ on drag_to_desktop(_position, _size, _desktop_number)
 	
 	try
 		do shell script cliclick & " dd:" & quoted form of x_click & "," & quoted form of y_click & "  kd:ctrl t:" & _desktop_number & " du:" & quoted form of x_click & "," & quoted form of y_click
+		
+		do shell script cliclick & " c:."
 	on error errMsg
 		display dialog "ERROR: " & errMsg
 	end try

@@ -1,8 +1,9 @@
 # Sort Stickies
 
-Date: 17/05/2016  
-Author: Lucas Ribeiro  
-Version: 0.0.1  
+Title: Sort Stickies
+Date: 17/05/2016
+Author: Lucas Ribeiro
+Version: 0.0.3 (29/10/2017) 
 
 ## Description  
 
@@ -29,6 +30,10 @@ belongs to, or "-1" to ignore it.
   
 ## Change log:  
 
+   0.0.3:
+      - Fix a bug that was preventing the notes to stay at the desktop after being left there. 
+   0.0.2:
+      - Now the script does not stop when something goes wrong with one sticky 
  	0.0.1:  
 		- First version ( probably many bugs :D )  
 
